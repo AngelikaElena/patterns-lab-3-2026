@@ -14,7 +14,16 @@ class Logger:
         return f"{timestamp} [{level.value}] {message}"
 
     def log(self, level: LogLevel, message: str) -> str:
-        formatted = self._format(level, message)
+        # Пытаемся привести уровень к enum. Если не получится - выбрасываем понятную ошибку.
+        try:
+            valid_level = LogLevel(level)
+        except ValueError:
+            raise ValueError(
+                f"Недопустимый уровень лога: '{level}'. "
+                f"Разрешенные: {[l.value for l in LogLevel]}"
+            )
+
+        formatted = self._format(valid_level, message)
         
         # Никаких if/elif! Просто вызываем метод у стратегии.
         self._strategy.write(formatted)
